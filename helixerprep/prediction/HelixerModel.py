@@ -82,8 +82,9 @@ class HelixerSequence(Sequence):
         self.model = model
         self.h5_file = h5_file
         self.mode = mode
-        self._cp_into_namespace(['batch_size', 'float_precision', 'class_weights', 'transition_weights','stretch_transition_weights','coverage','coverage_scaling',
-                                 'overlap', 'overlap_offset', 'core_length', 'min_seqs_for_overlapping',
+        self._cp_into_namespace(['batch_size', 'float_precision', 'class_weights', 'transition_weights',
+                                 'stretch_transition_weights', 'coverage', 'spliced_coverage', 'coverage_scaling',
+                                 'scores', 'overlap', 'overlap_offset', 'core_length', 'min_seqs_for_overlapping',
                                  'debug', 'exclude_errors', 'error_weights', 'gene_lengths',
                                  'gene_lengths_average', 'gene_lengths_exponent', 'gene_lengths_cutoff'])
         self.x_dset = h5_file['/data/X']
@@ -98,7 +99,8 @@ class HelixerSequence(Sequence):
             if self.gene_lengths:
                 self.gene_lengths_dset = h5_file['/data/gene_lengths']
         self.chunk_size = self.y_dset.shape[1]
-        self.cov_dset
+        self.coverage_dset = ['/evaluation/coverage']
+        self.spliced_coverage_dset = ['/evaluation/spliced_coverage']
 
         # set array of usable indexes, always exclude all erroneous sequences during training
         if self.exclude_errors:
