@@ -99,8 +99,8 @@ class HelixerSequence(Sequence):
             if self.gene_lengths:
                 self.gene_lengths_dset = h5_file['/data/gene_lengths']
         self.chunk_size = self.y_dset.shape[1]
-        self.coverage_dset = ['/evaluation/coverage']
-        self.spliced_coverage_dset = ['/evaluation/spliced_coverage']
+        self.coverage_dset = h5_file['/evaluation/coverage']
+        self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
 
         # set array of usable indexes, always exclude all erroneous sequences during training
         if self.exclude_errors:
