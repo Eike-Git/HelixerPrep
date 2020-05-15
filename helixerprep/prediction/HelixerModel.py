@@ -92,11 +92,12 @@ class HelixerSequence(Sequence):
         if self.mode == 'train':
             if self.transition_weights is not None:
                 self.transitions_dset = h5_file['/data/transitions']
-            if self.coverage:
-                self.coverage_dset = h5_file['/scores/by_bp']
+            if self.scores:
+                self.scores_dset = h5_file['/scores/by_bp']
             if self.gene_lengths:
                 self.gene_lengths_dset = h5_file['/data/gene_lengths']
         self.chunk_size = self.y_dset.shape[1]
+        self.cov_dset
 
         # set array of usable indexes, always exclude all erroneous sequences during training
         if self.exclude_errors:
@@ -160,6 +161,9 @@ class HelixerSequence(Sequence):
         y = self.y_dset[usable_idx_batch]
         sw = self.sw_dset[usable_idx_batch]
 
+        cov = self.coverage_dset[usable_idx_batch]
+        sc_cov = self.spliced_coverage_dset[usable_idx_batch]
+
         # calculate base level error rate for each sequence
         error_rates = (np.count_nonzero(sw == 0, axis=1) / y.shape[1]).astype(np.float32)
 
@@ -167,8 +171,8 @@ class HelixerSequence(Sequence):
             transitions = self.transitions_dset[usable_idx_batch]
         else:
             transitions = None
-        if self. mode == 'train' and self.coverage:
-            coverage_scores = self.coverage_dset[usable_idx_batch]
+        if self. mode == 'train' and self.scores:
+            coverage_scores = self.scores_dset[usable_idx_batch]
         else:
             coverage_scores = None
         if self.mode == 'train' and self.gene_lengths:
@@ -176,7 +180,7 @@ class HelixerSequence(Sequence):
         else:
             gene_lengths = None
 
-        return X, y, sw, error_rates, gene_lengths, transitions, coverage_scores
+        return X, y, sw, error_rates, gene_lengths, transitions, coverage_scores, cov, sc_cov
 
     def _get_seqid_borders(self, idx):
         seqids = self.seqids_dset[self._usable_idx_batch(idx)]

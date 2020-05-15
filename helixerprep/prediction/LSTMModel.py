@@ -22,7 +22,7 @@ class LSTMSequence(HelixerSequence):
             assert not mode == 'test'
 
     def __getitem__(self, idx):
-        X, y, sw, error_rates, gene_lengths, transitions, coverage_scores = self._get_batch_data(idx)
+        X, y, sw, error_rates, gene_lengths, transitions, coverage_scores, cov, sc_cov = self._get_batch_data(idx)
         pool_size = self.model.pool_size
         assert pool_size > 1, 'pooling size of <= 1 oh oh..'
         assert y.shape[1] % pool_size == 0, 'pooling size has to evenly divide seq len'
@@ -38,6 +38,18 @@ class LSTMSequence(HelixerSequence):
             y.shape[1] // pool_size,
             pool_size,
             y.shape[-1],
+        ))
+
+        cov = cov.reshape((
+            cov.shape[0],
+            cov.shape[1] // pool_size,
+            -1
+        ))
+
+        sc_cov = sc_cov.reshape((
+            sc_cov.shape[0],
+            sc_cov[1] // pool_size,
+            -1
         ))
 
         # mark any multi-base timestep as error if any base has an error
@@ -107,7 +119,7 @@ class LSTMSequence(HelixerSequence):
                 error_weights = 1 - np.power(error_rates, 1/3)
                 sw *= np.expand_dims(error_weights, axis=1)
 
-        return X, y, sw
+        return X, y, sw, cov, sc_cov
 
     def compress_tw(self, transitions):
         return self._squish_tw_to_sw(transitions, self.transition_weights, self.stretch_transition_weights)
