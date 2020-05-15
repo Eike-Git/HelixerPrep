@@ -15,6 +15,7 @@ import subprocess
 import numpy as np
 import tensorflow as tf
 from pprint import pprint
+import multiprocessing
 from functools import partial
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.python.client import timeline
