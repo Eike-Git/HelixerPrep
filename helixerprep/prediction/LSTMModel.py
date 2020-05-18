@@ -42,14 +42,14 @@ class LSTMSequence(HelixerSequence):
 
         cov = cov.reshape((
             cov.shape[0],
-            -1,
-            pool_size
+            cov.shape[1],
+            1
         ))
 
         sc_cov = sc_cov.reshape((
             sc_cov.shape[0],
-            -1,
-            pool_size
+            sc_cov.shape[1],
+            1
         ))
 
         # mark any multi-base timestep as error if any base has an error
