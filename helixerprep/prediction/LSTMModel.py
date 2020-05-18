@@ -52,6 +52,9 @@ class LSTMSequence(HelixerSequence):
             1
         ))
 
+        rna = np.stack([cov, sc_cov], axis=1)
+        X = np.stack([X, rna], axis=1)
+
         # mark any multi-base timestep as error if any base has an error
         sw = sw.reshape((sw.shape[0], -1, pool_size))
         sw = np.logical_not(np.any(sw == 0, axis=2)).astype(np.float32)
@@ -119,7 +122,7 @@ class LSTMSequence(HelixerSequence):
                 error_weights = 1 - np.power(error_rates, 1/3)
                 sw *= np.expand_dims(error_weights, axis=1)
 
-        return X, y, sw, cov, sc_cov
+        return X, y, sw
 
     def compress_tw(self, transitions):
         return self._squish_tw_to_sw(transitions, self.transition_weights, self.stretch_transition_weights)
