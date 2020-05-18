@@ -83,8 +83,8 @@ class HelixerSequence(Sequence):
         self.h5_file = h5_file
         self.mode = mode
         self._cp_into_namespace(['batch_size', 'float_precision', 'class_weights', 'transition_weights',
-                                 'stretch_transition_weights', 'coverage', 'spliced_coverage', 'coverage_scaling',
-                                 'scores', 'overlap', 'overlap_offset', 'core_length', 'min_seqs_for_overlapping',
+                                 'stretch_transition_weights', 'coverage', 'coverage_scaling',
+                                 'overlap', 'overlap_offset', 'core_length', 'min_seqs_for_overlapping',
                                  'debug', 'exclude_errors', 'error_weights', 'gene_lengths',
                                  'gene_lengths_average', 'gene_lengths_exponent', 'gene_lengths_cutoff'])
         self.x_dset = h5_file['/data/X']
@@ -94,12 +94,12 @@ class HelixerSequence(Sequence):
         if self.mode == 'train':
             if self.transition_weights is not None:
                 self.transitions_dset = h5_file['/data/transitions']
-            if self.scores:
-                self.scores_dset = h5_file['/scores/by_bp']
+            if self.coverage:
+                self.coverage_dset = h5_file['/scores/by_bp']
             if self.gene_lengths:
                 self.gene_lengths_dset = h5_file['/data/gene_lengths']
         self.chunk_size = self.y_dset.shape[1]
-        self.coverage_dset = h5_file['/evaluation/coverage']
+        self.RNA_coverage_dset = h5_file['/evaluation/coverage']
         self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
 
         # set array of usable indexes, always exclude all erroneous sequences during training
@@ -164,7 +164,7 @@ class HelixerSequence(Sequence):
         y = self.y_dset[usable_idx_batch]
         sw = self.sw_dset[usable_idx_batch]
 
-        cov = self.coverage_dset[usable_idx_batch]
+        cov = self.RNA_coverage_dset[usable_idx_batch]
         sc_cov = self.spliced_coverage_dset[usable_idx_batch]
 
         # calculate base level error rate for each sequence
@@ -174,8 +174,8 @@ class HelixerSequence(Sequence):
             transitions = self.transitions_dset[usable_idx_batch]
         else:
             transitions = None
-        if self. mode == 'train' and self.scores:
-            coverage_scores = self.scores_dset[usable_idx_batch]
+        if self. mode == 'train' and self.coverage:
+            coverage_scores = self.coverage_dset[usable_idx_batch]
         else:
             coverage_scores = None
         if self.mode == 'train' and self.gene_lengths:
@@ -226,6 +226,7 @@ class HelixerModel(ABC):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
         self.parser = argparse.ArgumentParser()
+        #self.parser.add_argument('-rna', '--rna-coverage', type=str, default='')
         self.parser.add_argument('-d', '--data-dir', type=str, default='')
         self.parser.add_argument('-sm', '--save-model-path', type=str, default='./best_model.h5')
         # training params
