@@ -27,11 +27,6 @@ class LSTMSequence(HelixerSequence):
         assert pool_size > 1, 'pooling size of <= 1 oh oh..'
         assert y.shape[1] % pool_size == 0, 'pooling size has to evenly divide seq len'
 
-        X = X.reshape((
-            X.shape[0],
-            X.shape[1] // pool_size,
-            -1
-        ))
         # make labels 2d so we can use the standard softmax / loss functions
         y = y.reshape((
             y.shape[0],
@@ -40,20 +35,26 @@ class LSTMSequence(HelixerSequence):
             y.shape[-1],
         ))
 
+        X = X.reshape((
+            X.shape[0],
+            X.shape[1] // pool_size,
+            -1
+        ))
+
         cov = cov.reshape((
             cov.shape[0],
-            cov.shape[1],
-            1
+            cov.shape[1] // pool_size,
+            -1
         ))
 
         sc_cov = sc_cov.reshape((
             sc_cov.shape[0],
-            sc_cov.shape[1],
-            1
+            sc_cov.shape[1] // pool_size,
+            -1
         ))
 
-        rna = np.stack([cov, sc_cov], axis=1)
-        X = np.stack([X, rna], axis=1)
+        rna = np.concatenate((cov, sc_cov), axis=2)
+        X = np.concatenate((X, rna), axis=2)
 
         # mark any multi-base timestep as error if any base has an error
         sw = sw.reshape((sw.shape[0], -1, pool_size))
