@@ -184,7 +184,7 @@ class LSTMModel(HelixerModel):
         return LSTMSequence
 
     def model(self):
-        main_input = Input(shape=(None, self.pool_size * 4), dtype=self.float_precision,
+        main_input = Input(shape=(None, self.pool_size * 6), dtype=self.float_precision,
                            name='main_input')
         x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
 
