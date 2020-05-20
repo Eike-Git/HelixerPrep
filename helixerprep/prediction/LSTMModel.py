@@ -35,26 +35,34 @@ class LSTMSequence(HelixerSequence):
             y.shape[-1],
         ))
 
-        X = X.reshape((
-            X.shape[0],
-            X.shape[1] // pool_size,
-            -1
-        ))
+        if cov != None:
+            X = X.reshape((
+                X.shape[0],
+                X.shape[1] // pool_size,
+                -1
+            ))
 
-        cov = cov.reshape((
-            cov.shape[0],
-            cov.shape[1] // pool_size,
-            -1
-        ))
+            cov = cov.reshape((
+                cov.shape[0],
+                cov.shape[1] // pool_size,
+                -1
+            ))
 
-        sc_cov = sc_cov.reshape((
-            sc_cov.shape[0],
-            sc_cov.shape[1] // pool_size,
-            -1
-        ))
+            sc_cov = sc_cov.reshape((
+                sc_cov.shape[0],
+                sc_cov.shape[1] // pool_size,
+                -1
+            ))
 
-        rna = np.concatenate((cov, sc_cov), axis=2)
-        X = np.concatenate((X, rna), axis=2)
+            rna = np.concatenate((cov, sc_cov), axis=2)
+            X = np.concatenate((X, rna), axis=2)
+
+        else:
+            X = X.reshape((
+                X.shape[0],
+                X.shape[1] // pool_size,
+                -1
+            ))
 
         # mark any multi-base timestep as error if any base has an error
         sw = sw.reshape((sw.shape[0], -1, pool_size))
@@ -162,7 +170,7 @@ class LSTMSequence(HelixerSequence):
         dilated_rf[i,j] = np.maximum(reshaped_sw_t[i,j],1)
         return dilated_rf
 
-class LSTMModel(HelixerModel):
+class LSTMModel(HelixerModel, HelixerSequence):
 
     def __init__(self):
         super().__init__()
@@ -172,6 +180,8 @@ class LSTMModel(HelixerModel):
         self.parser.add_argument('-dr', '--dropout', type=float, default=0.0)
         self.parser.add_argument('-ln', '--layer-normalization', action='store_true')
         self.parse_args()
+
+        self._cp_into_namespace(['rna_coverage'])
 
         if self.layers.isdigit():
             n_layers = int(self.layers)
@@ -184,10 +194,14 @@ class LSTMModel(HelixerModel):
         return LSTMSequence
 
     def model(self):
-        main_input = Input(shape=(None, self.pool_size * 6), dtype=self.float_precision,
-                           name='main_input')
-        x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
-
+        if self.__dict__['rna_coverage']:
+            main_input = Input(shape=(None, self.pool_size * 6), dtype=self.float_precision,
+                            name='main_input')
+            x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
+        else:
+            main_input = Input(shape=(None, self.pool_size * 4), dtype=self.float_precision,
+                               name='main_input')
+            x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
         # potential next layers
         if len(self.layers) > 1:
             for layer_units in self.layers[1:]:

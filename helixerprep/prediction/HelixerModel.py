@@ -82,7 +82,7 @@ class HelixerSequence(Sequence):
         self.model = model
         self.h5_file = h5_file
         self.mode = mode
-        self._cp_into_namespace(['batch_size', 'float_precision', 'class_weights', 'transition_weights',
+        self._cp_into_namespace(['rna_coverage', 'batch_size', 'float_precision', 'class_weights', 'transition_weights',
                                  'stretch_transition_weights', 'coverage', 'coverage_scaling',
                                  'overlap', 'overlap_offset', 'core_length', 'min_seqs_for_overlapping',
                                  'debug', 'exclude_errors', 'error_weights', 'gene_lengths',
@@ -99,8 +99,12 @@ class HelixerSequence(Sequence):
             if self.gene_lengths:
                 self.gene_lengths_dset = h5_file['/data/gene_lengths']
         self.chunk_size = self.y_dset.shape[1]
-        self.RNA_coverage_dset = h5_file['/evaluation/coverage']
-        self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
+        if self.__dict__['rna_coverage']:
+            self.RNA_coverage_dset = h5_file['/evaluation/coverage']
+            self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
+        else:
+            self.RNA_coverage_dset = None
+            self.spliced_coverage_dset = None
 
         # set array of usable indexes, always exclude all erroneous sequences during training
         if self.exclude_errors:
@@ -226,9 +230,10 @@ class HelixerModel(ABC):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
         self.parser = argparse.ArgumentParser()
-        #self.parser.add_argument('-rna', '--rna-coverage', type=str, default='')
         self.parser.add_argument('-d', '--data-dir', type=str, default='')
         self.parser.add_argument('-sm', '--save-model-path', type=str, default='./best_model.h5')
+        # RNA
+        self.parser.add_argument('-rna', '--rna-coverage', action='store_true')
         # training params
         self.parser.add_argument('-e', '--epochs', type=int, default=10000)
         self.parser.add_argument('-bs', '--batch-size', type=int, default=8)
@@ -238,8 +243,8 @@ class HelixerModel(ABC):
         self.parser.add_argument('-cw', '--class-weights', type=str, default='None')
         self.parser.add_argument('-tw', '--transition-weights', type=str, default='None')
         self.parser.add_argument('-s-tw', '--stretch-transition-weights', type=int, default=0)
-        self.parser.add_argument('-cov','--coverage',action='store_true')
-        self.parser.add_argument('-covs','--coverage-scaling', type=float, default=0.1)
+        self.parser.add_argument('-cov', '--coverage', action='store_true')
+        self.parser.add_argument('-covs', '--coverage-scaling', type=float, default=0.1)
         self.parser.add_argument('-can', '--canary-dataset', type=str, default='')
         self.parser.add_argument('-res', '--resume-training', action='store_true')
         self.parser.add_argument('-ee', '--exclude-errors', action='store_true')
