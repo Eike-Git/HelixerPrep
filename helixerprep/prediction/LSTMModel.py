@@ -35,7 +35,7 @@ class LSTMSequence(HelixerSequence):
             y.shape[-1],
         ))
 
-        if cov != None:
+        if cov.any != None:
             X = X.reshape((
                 X.shape[0],
                 X.shape[1] // pool_size,
