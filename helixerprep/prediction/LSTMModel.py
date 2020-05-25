@@ -170,7 +170,7 @@ class LSTMSequence(HelixerSequence):
         dilated_rf[i,j] = np.maximum(reshaped_sw_t[i,j],1)
         return dilated_rf
 
-class LSTMModel(HelixerModel, HelixerSequence):
+class LSTMModel(HelixerModel):
 
     def __init__(self):
         super().__init__()
@@ -181,7 +181,7 @@ class LSTMModel(HelixerModel, HelixerSequence):
         self.parser.add_argument('-ln', '--layer-normalization', action='store_true')
         self.parse_args()
 
-        self._cp_into_namespace(['rna_coverage'])
+        # self._cp_into_namespace(['rna_coverage'])
 
         if self.layers.isdigit():
             n_layers = int(self.layers)

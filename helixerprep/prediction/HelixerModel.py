@@ -99,6 +99,7 @@ class HelixerSequence(Sequence):
             if self.gene_lengths:
                 self.gene_lengths_dset = h5_file['/data/gene_lengths']
         self.chunk_size = self.y_dset.shape[1]
+
         if self.__dict__['rna_coverage']:
             self.RNA_coverage_dset = h5_file['/evaluation/coverage']
             self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
