@@ -35,7 +35,7 @@ class LSTMSequence(HelixerSequence):
             y.shape[-1],
         ))
 
-        if cov.any != None:
+        if self.__dict__['rna_coverage']:
             X = X.reshape((
                 X.shape[0],
                 X.shape[1] // pool_size,
@@ -180,8 +180,6 @@ class LSTMModel(HelixerModel):
         self.parser.add_argument('-dr', '--dropout', type=float, default=0.0)
         self.parser.add_argument('-ln', '--layer-normalization', action='store_true')
         self.parse_args()
-
-        # self._cp_into_namespace(['rna_coverage'])
 
         if self.layers.isdigit():
             n_layers = int(self.layers)

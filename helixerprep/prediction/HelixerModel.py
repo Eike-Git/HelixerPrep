@@ -103,9 +103,9 @@ class HelixerSequence(Sequence):
         if self.__dict__['rna_coverage']:
             self.RNA_coverage_dset = h5_file['/evaluation/coverage']
             self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
-        else:
-            self.RNA_coverage_dset = None
-            self.spliced_coverage_dset = None
+        #else:
+            #self.RNA_coverage_dset = None
+            #self.spliced_coverage_dset = None
 
         # set array of usable indexes, always exclude all erroneous sequences during training
         if self.exclude_errors:
@@ -169,8 +169,9 @@ class HelixerSequence(Sequence):
         y = self.y_dset[usable_idx_batch]
         sw = self.sw_dset[usable_idx_batch]
 
-        cov = self.RNA_coverage_dset[usable_idx_batch]
-        sc_cov = self.spliced_coverage_dset[usable_idx_batch]
+        if self.__dict__['rna_coverage']:
+            cov = self.RNA_coverage_dset[usable_idx_batch]
+            sc_cov = self.spliced_coverage_dset[usable_idx_batch]
 
         # calculate base level error rate for each sequence
         error_rates = (np.count_nonzero(sw == 0, axis=1) / y.shape[1]).astype(np.float32)
