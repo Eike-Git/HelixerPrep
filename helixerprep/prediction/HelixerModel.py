@@ -173,8 +173,8 @@ class HelixerSequence(Sequence):
             cov = self.RNA_coverage_dset[usable_idx_batch]
             sc_cov = self.spliced_coverage_dset[usable_idx_batch]
         else:
-            cov = 0
-            sc_cov = 0
+            cov = None
+            sc_cov = None
 
         # calculate base level error rate for each sequence
         error_rates = (np.count_nonzero(sw == 0, axis=1) / y.shape[1]).astype(np.float32)
