@@ -101,8 +101,8 @@ class HelixerSequence(Sequence):
         self.chunk_size = self.y_dset.shape[1]
 
         if self.__dict__['rna_coverage']:
-            self.RNA_coverage_dset = h5_file['/evaluation/coverage']
-            self.spliced_coverage_dset = h5_file['/evaluation/spliced_coverage']
+            self.RNA_coverage_dset = h5_file['/evaluation/rna_coverage']
+            self.spliced_coverage_dset = h5_file['/evaluation/spliced_rna_coverage']
         #else:
             #self.RNA_coverage_dset = None
             #self.spliced_coverage_dset = None
