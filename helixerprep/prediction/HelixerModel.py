@@ -239,6 +239,7 @@ class HelixerModel(ABC):
         self.parser.add_argument('-sm', '--save-model-path', type=str, default='./best_model.h5')
         # RNA
         self.parser.add_argument('-rna', '--rna-coverage', action='store_true')
+        self.parser.add_argument('-rna-x', '--rna-coverage-x', action='store_true')
         # training params
         self.parser.add_argument('-e', '--epochs', type=int, default=10000)
         self.parser.add_argument('-bs', '--batch-size', type=int, default=8)
