@@ -196,18 +196,17 @@ class LSTMModel(HelixerModel):
             main_input = Input(shape=(None, self.pool_size * 6), dtype=self.float_precision,
                             name='main_input')
             x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
+
+        if self.__dict__ != ['rna_coverage'] & self.__dict__['rna_coverage_x']:
+            main_input = Input(shape=(None, self.pool_size * 6), dtype=self.float_precision,
+                               name='main_input')
+            x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
+
         else:
             main_input = Input(shape=(None, self.pool_size * 4), dtype=self.float_precision,
                                name='main_input')
             x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
 
-        if self.__dict__['rna_coverage_x']:
-            main_input = Input(shape=(None, self.pool_size * 6), dtype=self.float_precision,
-                            name='main_input')
-            x = Bidirectional(CuDNNLSTM(self.layers[0], return_sequences=True))(main_input)
-        else:
-            main_input = Input(shape=(None, self.pool_size * 4), dtype=self.float_precision,
-                               name='main_input')
 
         # potential next layers
         if len(self.layers) > 1:
