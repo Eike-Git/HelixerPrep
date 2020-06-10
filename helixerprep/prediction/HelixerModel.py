@@ -82,7 +82,7 @@ class HelixerSequence(Sequence):
         self.model = model
         self.h5_file = h5_file
         self.mode = mode
-        self._cp_into_namespace(['rna_coverage', 'batch_size', 'float_precision', 'class_weights', 'transition_weights',
+        self._cp_into_namespace(['rna_coverage_x', 'rna_coverage', 'batch_size', 'float_precision', 'class_weights', 'transition_weights',
                                  'stretch_transition_weights', 'coverage', 'coverage_scaling',
                                  'overlap', 'overlap_offset', 'core_length', 'min_seqs_for_overlapping',
                                  'debug', 'exclude_errors', 'error_weights', 'gene_lengths',
